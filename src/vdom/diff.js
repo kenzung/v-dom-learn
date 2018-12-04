@@ -1,4 +1,18 @@
 import { createNode } from '../dom';
+
+function innerDiffNode(dom, vchildren) {
+  const originChildren = dom.childList;
+
+  for (let i = 0; i < originChildren.length; i++) {
+    const child = originChildren[i];
+    const vchild = vchildren[i];
+    const diffRes = idiff(child, vchild);
+    if (!child) {
+      dom.appendChild(diffRes);
+    }
+  }
+}
+
 function idiff(dom, vnode) {
   let out = dom;
 
@@ -24,10 +38,20 @@ function idiff(dom, vnode) {
   // 原生html组件
   out = createNode(vnodeName);
   if (dom) {
-    // 把
-    while (dom.firstChild) out.appendChild(dom.firstChild);
+    // 把原来dom的数据挂载到新的dom上
+    const frag = document.createDocumentFragment();
+    while (dom.firstChild) frag.appendChild(dom.firstChild);
+    out.appendChild(frag);
+    // 更新parent指向新节点
+    dom.parentNode.replaceChild(out, dom);
   }
 
+  // 检查vnode的children
+  const vchildren = vnode.children;
+  // 如果vnode存在children，则遍历children的值
+  if(vchildren && vchildren.length > 0) {
+    innerDiffNode(out, vchildren);
+  }
 }
 
 export default function diff(dom, vnode, parent) {
