@@ -1,4 +1,5 @@
 import { createNode } from '../dom';
+import { buildComponentFromVNode } from './component';
 
 function innerDiffNode(dom, vchildren) {
   const originChildren = dom.childList;
@@ -32,8 +33,9 @@ function idiff(dom, vnode) {
 
   // 自定义组件
   const vnodeName = vnode.nodeName;
-  // if (typeof vnodeName === 'function') {
-  // }
+  if (typeof vnodeName === 'function') {
+    return buildComponentFromVNode(dom, vnode);
+  }
 
   // 原生html组件
   out = createNode(vnodeName);

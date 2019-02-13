@@ -6,4 +6,4 @@
  * @property {string | number | undefined} key
  * @property {object} attributes
  */
-export default function VNode() {};
+export default function VNode() {}
