@@ -1,4 +1,5 @@
 import { Component } from '../component';
+import { diff } from './diff';
 
 function createComponent(NodeName, props) {
   let comp = null;
@@ -18,8 +19,51 @@ function doRender(props) {
   return this.constructor(props);
 }
 
+function setComponentProps(component, props) {
+  if (!component.base) {
+    if (component.componentWillMount) {
+      component.componentWillMount();
+    }
+  }
+
+  if (component.componentWillReceiveProps) {
+    component.componentWillReceiveProps();
+  }
+
+  component.prevProps = component.props;
+  component.props = props;
+
+  renderComponent(component);
+}
+
+// 渲染子控件
+function renderComponent(component) {
+  const { base, state, props } = component;
+  let skip = false;
+  if (base) {
+    if (component.shouldComponentUpdate) {
+      skip = component.shouldComponentUpdate();
+    }
+    if (!skip) {
+      if (component.componentWillUpdate) {
+        component.componentWillUpdate();
+      }
+    }
+  }
+
+  if (!skip) {
+    // 执行component的render方法，获取控件中的子控件
+    const renderer = component.render(props, state);
+    
+    // 获取diff结果
+    const ret = diff(base, renderer, base && base.parentNode);
+  }
+}
+
 export function buildComponentFromVNode(dom, vnode) {
   // 创建component，获取vnode的nodename和attri
   const { nodeName, attributes: props } = vnode;
-  const comp = createComponent(nodeName, props);
+  const component = createComponent(nodeName, props);
+  // 设置 props
+  setComponentProps(component, props);
 }
