@@ -10,12 +10,11 @@ const List = ({ data }) => (
 
 const mydata = 111;
 
-const demo = (
+myreact.render((
   <div className="testDiv">
     normalTest
     <h2>title</h2>
     <List data={mydata} />
   </div>
-);
-
+), document.getElementById('root'));
 console.log(demo);
