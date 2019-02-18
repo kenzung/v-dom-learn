@@ -39,8 +39,10 @@ function setComponentProps(component, props) {
 // 渲染子控件
 function renderComponent(component) {
   const { base, state, props } = component;
+
+  const initBase = base;
   let skip = false;
-  if (base) {
+  if (initBase) {
     if (component.shouldComponentUpdate) {
       skip = component.shouldComponentUpdate();
     }
@@ -52,11 +54,24 @@ function renderComponent(component) {
   }
 
   if (!skip) {
-    // 执行component的render方法，获取控件中的子控件
+    // 执行component的render方法
     const renderer = component.render(props, state);
     
-    // 获取diff结果
+    // 获取控件的diff结果
     const ret = diff(base, renderer, base && base.parentNode);
+
+    // 设置component的base
+    component.base = ret;
+
+    if (initBase && ret !== initBase) {
+      const baseParent = initBase.parentNode;
+      if (baseParent) {
+        // 替换旧节点
+        baseParent.replaceChild(ret, initBase);
+        
+        // 释放旧节点
+      }
+    }
   }
 }
 
@@ -66,4 +81,5 @@ export function buildComponentFromVNode(dom, vnode) {
   const component = createComponent(nodeName, props);
   // 设置 props
   setComponentProps(component, props);
+  return component.base;
 }
