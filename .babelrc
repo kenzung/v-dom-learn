@@ -1,6 +1,7 @@
 {
-  "presets": ["env"],
+  "presets": ["@babel/preset-env"],
   "plugins": [
-    ["transform-react-jsx", { "pragma":"myreact.h" }]
+    ["@babel/plugin-transform-react-jsx", { "pragma":"myreact.h" }],
+    ["@babel/plugin-transform-destructuring"]
   ]
 }
